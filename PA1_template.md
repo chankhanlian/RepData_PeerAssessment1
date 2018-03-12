@@ -9,7 +9,8 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r, echo=TRUE}
+
+```r
 #Load the activity data set 
 data<-read.csv("activity.csv")
 
@@ -19,7 +20,8 @@ data$date<-as.Date(data$date)
 
 ## What is mean total number of steps taken per day?
 Create a histogram of the daily steps.  Missing data ("NA") are ignored.
-```{r figure1, message=FALSE}
+
+```r
 #Calculate total steps for each date
 library(ggplot2)
 grouped_data<-aggregate(data$steps, by=list(data$date), FUN=sum, na.rm=TRUE)
@@ -28,43 +30,73 @@ ggplot(data=grouped_data, aes(total_steps)) + geom_histogram(bins=20) + xlab("To
     ylab("Count") + ggtitle("Frequency Distribution of Total Daily Steps")
 ```
 
-```{r, echo=TRUE}
+![](PA1_template_files/figure-html/figure1-1.png)<!-- -->
+
+
+```r
 #Calculate the mean across the dates that are not NA
 mean_steps<-mean(grouped_data[!(is.na(grouped_data$total_steps)),2])
 median_steps<-median(grouped_data[!(is.na(grouped_data$total_steps)),2])
 ```
 
 The average number of steps taken per day is
-```{r, echo=TRUE}
+
+```r
 mean_steps
 ```
+
+```
+## [1] 9354.23
+```
 and the median number of steps per day is
-```{r, echo=TRUE}
+
+```r
 median_steps
 ```
 
+```
+## [1] 10395
+```
+
 ## What is the average daily activity pattern?
-```{r figure2, echo=TRUE}
+
+```r
 #Calculate the mean number of steps across dates by interval
 grouped_interval<-aggregate(data$steps, by=list(data$interval), FUN=mean, na.rm=TRUE)
 colnames(grouped_interval)<-c("interval", "avg_steps" )
 ggplot(grouped_interval, aes(interval, avg_steps)) + geom_line() + ylab("Avg Number of  Steps") + xlab("Interval")
+```
+
+![](PA1_template_files/figure-html/figure2-1.png)<!-- -->
+
+```r
 #Get row of dataframe that has the maximum number of steps
 max_row<-grouped_interval[which.max(grouped_interval$avg_steps),]
 ```
 
 The interval with the maximum number of steps (on average across all the days)
-```{r}
+
+```r
 max_row[,1]
+```
+
+```
+## [1] 835
 ```
 
 ## Imputing missing values
 The number of missing values (coded as "NA") is
-```{r, echo=TRUE}
+
+```r
 sum(is.na(data$steps))
 ```
+
+```
+## [1] 2304
+```
 Missing data ("NA") will be replaced by the average number of steps (across all the days) for that interval.
-```{r figure3, echo=TRUE, message=FALSE}
+
+```r
 #The lookup function looks up the average number of steps for the given interval
 #if the steps is NA.
 lookup_function<-function(interval, steps) {
@@ -83,9 +115,12 @@ ggplot(data=grouped_imputed, aes(total_steps)) + geom_histogram(bins=20) +
 xlab("Total Steps") + ylab("Count") + ggtitle("Frequency Distribution of Total Daily Steps")
 ```
 
+![](PA1_template_files/figure-html/figure3-1.png)<!-- -->
+
 ## Are there differences in activity patterns between weekdays and weekends?
 Create two time series plots (one for 'weekday' and one for 'weekend') of the average number of steps.
-```{r figure4, echo=TRUE}
+
+```r
 #Add new column 'day' to the dataset that indicates whether the date is a 
 #weekday or weekend
 
@@ -105,3 +140,5 @@ grouped_day_names<-c("interval", "day", "avg_steps")
 colnames(grouped_day)<-grouped_day_names
 ggplot(grouped_day, aes(interval, avg_steps)) + geom_line() + ylab("Avg Number of Steps") + xlab("Interval") + facet_grid(day~.)
 ```
+
+![](PA1_template_files/figure-html/figure4-1.png)<!-- -->
